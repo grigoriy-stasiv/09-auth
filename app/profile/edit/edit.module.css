@@ -1,0 +1,9 @@
+.form { display: grid; gap: 16px; }
+.formGroup { display: grid; gap: 8px; }
+.formGroup label { font-weight: 600; }
+.input { box-sizing: border-box; width: 100%; padding: 11px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font: inherit; }
+.actions { display: flex; gap: 12px; margin-top: 8px; }
+.submitButton,.cancelButton { padding: 10px 18px; border: 0; border-radius: 6px; font: inherit; cursor: pointer; }
+.submitButton { background: #2563eb; color: white; }
+.cancelButton { background: #e2e8f0; color: #0f172a; }
+.error { color: #b91c1c; }
