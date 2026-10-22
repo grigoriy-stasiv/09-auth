@@ -54,7 +54,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     const { id } = await params;
     const body = await request.json();
     const res = await api.patch(`/notes/${id}`, body, {
-      headers: { Cookie: cookieStore.toString(), 'Content-Type': 'application/json' },
+      headers: { Cookie: cookieStore.toString() },
     });
     return NextResponse.json(res.data, { status: res.status });
   } catch (error) {
