@@ -41,7 +41,7 @@ export async function logout() {
 }
 
 export async function checkSession(config?: AxiosRequestConfig) {
-  const { data } = await api.get<User | null>('/auth/session', config);
+  const { data } = await api.get<{ success: boolean }>('/auth/session', config);
   return data;
 }
 

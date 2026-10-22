@@ -1,5 +1,6 @@
 import 'server-only';
 import axios from 'axios';
+import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { cookies } from 'next/headers';
 import type { Note } from '@/types/note';
 import type { FetchNotesResponse } from '@/types/api';
@@ -31,8 +32,7 @@ export async function getMe() {
   return data;
 }
 
-export async function checkSession() {
+export async function checkSession(config?: AxiosRequestConfig): Promise<AxiosResponse<User | null>> {
   const client = await getServerApi();
-  const { data } = await client.get<User | null>('/auth/session');
-  return data;
+  return client.get<User | null>('/auth/session', config);
 }

@@ -1,6 +1,13 @@
 import { NextRequest } from 'next/server';
-import { proxyApiRequest } from '@/lib/api/proxy';
+import { api } from '../../api';
+import { errorApiResponse, jsonApiResponse } from '../../_utils/utils';
 
-export function POST(request: NextRequest) {
-  return proxyApiRequest(request, 'auth/register');
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const response = await api.post('/auth/register', body);
+    return jsonApiResponse(response);
+  } catch (error) {
+    return errorApiResponse(error);
+  }
 }

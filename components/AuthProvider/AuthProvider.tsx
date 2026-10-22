@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useAuthStore } from '@/lib/store/authStore';
-import { checkSession } from '@/lib/api/clientApi';
+import { checkSession, getMe } from '@/lib/api/clientApi';
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
   const setUser = useAuthStore((state) => state.setUser);
@@ -10,7 +10,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     checkSession()
-      .then((user) => user ? setUser(user) : clearUser())
+      .then((session) => session.success ? getMe().then(setUser) : clearUser())
       .catch(() => clearUser());
   }, [clearUser, setUser]);
 

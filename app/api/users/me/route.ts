@@ -1,10 +1,29 @@
 import { NextRequest } from 'next/server';
-import { proxyApiRequest } from '@/lib/api/proxy';
+import { cookies } from 'next/headers';
+import { api } from '../../api';
+import { errorApiResponse, jsonApiResponse } from '../../_utils/utils';
 
-export function GET(request: NextRequest) {
-  return proxyApiRequest(request, 'users/me');
+export const dynamic = 'force-dynamic';
+
+export async function GET() {
+  try {
+    const cookieStore = await cookies();
+    const response = await api.get('/users/me', { headers: { Cookie: cookieStore.toString() } });
+    return jsonApiResponse(response);
+  } catch (error) {
+    return errorApiResponse(error);
+  }
 }
 
-export function PATCH(request: NextRequest) {
-  return proxyApiRequest(request, 'users/me');
+export async function PATCH(request: NextRequest) {
+  try {
+    const cookieStore = await cookies();
+    const body = await request.json();
+    const response = await api.patch('/users/me', body, {
+      headers: { Cookie: cookieStore.toString(), 'Content-Type': 'application/json' },
+    });
+    return jsonApiResponse(response);
+  } catch (error) {
+    return errorApiResponse(error);
+  }
 }
