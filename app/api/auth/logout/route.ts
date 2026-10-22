@@ -1,25 +1,29 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { api } from '../../api';
-import { errorApiResponse } from '../../_utils/utils';
+import { isAxiosError } from 'axios';
+import { logErrorResponse } from '../../_utils/utils';
 
 export async function POST() {
   try {
     const cookieStore = await cookies();
-    const response = await api.post('/auth/logout', null, {
-      headers: { Cookie: cookieStore.toString() },
+    const accessToken = cookieStore.get('accessToken')?.value;
+    const refreshToken = cookieStore.get('refreshToken')?.value;
+    await api.post('auth/logout', null, {
+      headers: { Cookie: `accessToken=${accessToken}; refreshToken=${refreshToken}` },
     });
     cookieStore.delete('accessToken');
     cookieStore.delete('refreshToken');
-    const result = NextResponse.json(response.data ?? { message: 'Logged out successfully' }, { status: response.status });
-    const setCookies = response.headers['set-cookie'];
-    if (setCookies) {
-      for (const cookie of Array.isArray(setCookies) ? setCookies : [setCookies]) {
-        result.headers.append('Set-Cookie', cookie.replace(/;\s*Domain=[^;]+/i, ''));
-      }
-    }
-    return result;
+    return NextResponse.json({ message: 'Logged out successfully' }, { status: 200 });
   } catch (error) {
-    return errorApiResponse(error);
+    if (isAxiosError(error)) {
+      logErrorResponse(error.response?.data);
+      return NextResponse.json(
+        { error: error.message, response: error.response?.data },
+        { status: error.status },
+      );
+    }
+    logErrorResponse({ message: (error as Error).message });
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
