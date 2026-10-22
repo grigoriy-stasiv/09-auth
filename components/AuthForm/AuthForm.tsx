@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import axios from 'axios';
+import Link from 'next/link';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { useRouter } from 'next/navigation';
 import * as Yup from 'yup';
@@ -38,8 +40,20 @@ export default function AuthForm({ mode }: { mode: 'login' | 'register' }) {
             setUser(user);
             router.replace('/profile');
             router.refresh();
-          } catch {
-            setError(registering ? 'Could not create your account. Check the details and try again.' : 'Email or password is incorrect.');
+          } catch (requestError) {
+            const status = axios.isAxiosError(requestError)
+              ? requestError.response?.status
+              : undefined;
+
+            if (registering && status === 409) {
+              setError('An account with this email already exists. Sign in instead.');
+            } else if (status === 401) {
+              setError('Email or password is incorrect.');
+            } else {
+              setError(registering
+                ? 'Could not create your account. Check the details and try again.'
+                : 'Could not sign in. Please try again.');
+            }
           } finally {
             helpers.setSubmitting(false);
           }
@@ -63,7 +77,10 @@ export default function AuthForm({ mode }: { mode: 'login' | 'register' }) {
                 {isSubmitting ? 'Please wait…' : registering ? 'Register' : 'Log in'}
               </button>
             </div>
-            {error && <p role="alert" className={css.error}>{error}</p>}
+            {error && <p role="alert" className={css.error}>
+              {error}
+              {registering && error.includes('already exists') && <> <Link href="/sign-in">Go to sign in</Link></>}
+            </p>}
           </Form>
         )}
       </Formik>
